@@ -1,5 +1,9 @@
 # Notes
 
+> [!NOTE]
+> Notes app is currently under development. Some features are incomplete and
+> bug fixing is needed
+
 Notes is a terminal app to manage a library of notes. It has the ability of dynamic categories and git control.
 
 Other uses:
