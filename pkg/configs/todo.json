@@ -1,0 +1,50 @@
+{
+    "name": "todo",
+    "version": "v0.0.1",
+    "author": {
+        "name": "Juanma Espinosa",
+        "github": "https://www.github.com/espinosajuanma"
+    },
+    "categories": [
+        {
+            "title": "To do",
+            "name": "todo",
+            "starter": true,
+            "weight": 0,
+            "transitions": {
+                "next": "working",
+                "start": "working",
+                "archive": "archive"
+            }
+        },
+        {
+            "title": "Working",
+            "name": "working",
+            "weight": 1,
+            "transitions": {
+                "pause": "todo",
+                "next": "finished",
+                "finish": "finished",
+                "archive": "archived"
+            }
+        },
+        {
+            "title": "Finished",
+            "name": "finished",
+            "weight": 2,
+            "transitions": {
+                "restart": "todo",
+                "archive": "archived"
+            }
+        },
+        {
+            "title": "Archived",
+            "name": "archived",
+            "weight": 3,
+            "hidden": true,
+            "transitions": {
+                "recover": "todo"
+            }
+        }
+    ]
+}

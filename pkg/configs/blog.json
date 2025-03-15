@@ -1,0 +1,40 @@
+{
+    "name": "blog",
+    "version": "v0.0.1",
+    "author": {
+        "name": "Juanma Espinosa",
+        "github": "https://www.github.com/espinosajuanma"
+    },
+    "categories": [
+        {
+            "title": "Draft",
+            "name": "draft",
+            "weight": 0,
+            "hidden": true,
+            "starter": true,
+            "transitions": {
+                "publish": "published",
+                "archive": "archived"
+            }
+        },
+        {
+            "title": "Published",
+            "name": "published",
+            "weight": 1,
+            "hidden": false,
+            "transitions": {
+                "unpublish": "draft",
+                "archive": "archived"
+            }
+        },
+        {
+            "title": "Archived",
+            "name": "archived",
+            "weight": 2,
+            "hidden": true,
+            "transitions": {
+                "recover": "draft"
+            }
+        }
+    ]
+}
