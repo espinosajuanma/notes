@@ -10,8 +10,10 @@ import (
 	"github.com/rwxrob/fs/file"
 )
 
+// The filename used for note content.
 const FILE_NAME = "README.md"
 
+// Represents a single note.
 type Note struct {
 	ID         string
 	Category   *Category
@@ -24,6 +26,7 @@ type Note struct {
 	Pinned     bool
 }
 
+// Initializes a note, reading its title and content from disk.
 func (n *Note) Init() error {
 	title, err := n.GetTitle()
 	if err != nil {
@@ -31,23 +34,28 @@ func (n *Note) Init() error {
 	}
 	n.Title = title
 
-	// Check if pin
-
-	// Read content
 	content, err := n.GetContent()
 	if err != nil {
 		return err
 	}
 	n.Content = content
 
-	// Parse tags
 	n.GetTags()
 
 	return nil
 }
 
-// PATH functions
+// Returns the full path to the note's file.
+func (n *Note) GetPath() string {
+	return path.Join(n.GetDir(), n.GetFileName())
+}
 
+// Returns the directory where the note is stored.
+func (n *Note) GetDir() string {
+	return path.Join(n.Category.Path, n.ID)
+}
+
+// Returns the filename for the note, including a "*" prefix if pinned.
 func (n *Note) GetFileName() string {
 	if n.Pinned {
 		return "*" + FILE_NAME
@@ -55,14 +63,7 @@ func (n *Note) GetFileName() string {
 	return FILE_NAME
 }
 
-func (n *Note) GetDir() string {
-	return path.Join(n.Category.Path, n.ID)
-}
-
-func (n *Note) GetPath() string {
-	return path.Join(n.GetDir(), n.GetFileName())
-}
-
+// Reads the note's content from its file.
 func (n *Note) GetContent() (string, error) {
 	bs, err := os.ReadFile(n.GetPath())
 	if err != nil {
@@ -71,14 +72,14 @@ func (n *Note) GetContent() (string, error) {
 	return string(bs), nil
 }
 
+// Extracts tags from the note's content (currently a stub).
 func (n *Note) GetTags() []string {
-	return []string{""}
+	return []string{""} // Placeholder; needs actual tag extraction logic
 }
 
+// Extracts the note's title from the first line of its content file.
 func (n *Note) GetTitle() (string, error) {
-	file.Head(n.GetPath(), 0)
-	dir := n.GetPath()
-	head, err := file.Head(dir, 1)
+	head, err := file.Head(n.GetPath(), 1)
 	if err != nil {
 		return "", err
 	}
@@ -86,16 +87,17 @@ func (n *Note) GetTitle() (string, error) {
 	return title, nil
 }
 
+// Generates a string representation of the note.
 func (n *Note) Print() string {
 	return fmt.Sprintf("[%s] %s", n.ID, n.Title)
 }
 
-// File Actions
-
+// Opens the note's file in the user's default editor.
 func (n *Note) Edit() error {
 	return file.Edit(n.GetPath())
 }
 
+// Creates the note's directory and file, writing the initial title.
 func (n *Note) Create() (*Note, error) {
 	if dir.Exists(n.GetDir()) {
 		return n, fmt.Errorf("%s already exists", n.GetDir())
@@ -111,8 +113,7 @@ func (n *Note) Create() (*Note, error) {
 	return n, nil
 }
 
-// Git Actions
-
+// Commits changes to the note's file to the repository.
 func (n *Note) Commit(action string) error {
 	title, err := n.GetTitle()
 	if err != nil {
@@ -123,6 +124,7 @@ func (n *Note) Commit(action string) error {
 	return err
 }
 
+// Moves the note to a new category.
 func (n *Note) Move(c *Category) error {
 	current := n.GetDir()
 	n.Category = c
@@ -138,6 +140,7 @@ func (n *Note) Move(c *Category) error {
 	return nil
 }
 
+// Moves the note to the next category according to its transitions.
 func (n *Note) MoveNext() error {
 	c, err := n.Category.Transitions.Find("next")
 	if err != nil {
@@ -150,6 +153,7 @@ func (n *Note) MoveNext() error {
 	return nil
 }
 
+// Updates the note's content and commits the changes to the repository.
 func (n *Note) Update(isNew bool) error {
 	err := n.Repository.Add(n.GetPath())
 	if err != nil {
@@ -166,6 +170,7 @@ func (n *Note) Update(isNew bool) error {
 	return nil
 }
 
+// Removes the note's directory and commits the removal to the repository.
 func (n *Note) Remove() error {
 	err := n.Repository.Remove(n.GetDir(), true)
 	if err != nil {

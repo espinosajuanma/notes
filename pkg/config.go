@@ -12,6 +12,7 @@ import (
 //go:embed configs
 var configs embed.FS
 
+// Holds the application configuration.
 type Config struct {
 	Template    string
 	UserConfig  string
@@ -32,6 +33,7 @@ type Config struct {
 	} `json:"categories"`
 }
 
+// Initializes the configuration from a template or user config file.
 func (c *Config) Init() error {
 	if c.Template != "" {
 		return c.ImportTemplate()
@@ -42,6 +44,7 @@ func (c *Config) Init() error {
 	return fmt.Errorf("need a template or user config file")
 }
 
+// Imports configuration from a user-specified config file.
 func (c *Config) ImportUserConfig() error {
 	_, err := os.Stat(c.UserConfig)
 	if err != nil {
@@ -59,6 +62,7 @@ func (c *Config) ImportUserConfig() error {
 	return nil
 }
 
+// Imports configuration from an embedded template file.
 func (c *Config) ImportTemplate() error {
 	filePath := "configs/" + c.Template + ".json"
 	data, err := configs.ReadFile(filePath)
@@ -73,6 +77,7 @@ func (c *Config) ImportTemplate() error {
 	return nil
 }
 
+// Parses a JSON byte slice into a Config struct.
 func ParseConfig(data []byte) (*Config, error) {
 	var t Config
 	err := json.Unmarshal(data, &t)
@@ -83,6 +88,7 @@ func ParseConfig(data []byte) (*Config, error) {
 	return &t, nil
 }
 
+// Retrieves a list of available template names.
 func (c *Config) GetTemplates() ([]string, error) {
 	names := []string{}
 	files, err := configs.ReadDir("configs")
@@ -96,6 +102,7 @@ func (c *Config) GetTemplates() ([]string, error) {
 	return names, nil
 }
 
+// Exports the current configuration to a JSON byte slice.
 func (c *Config) Export() ([]byte, error) {
 	data, err := json.Marshal(c)
 	if err != nil {
