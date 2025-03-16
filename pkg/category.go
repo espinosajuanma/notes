@@ -8,6 +8,7 @@ import (
 	"github.com/rwxrob/fs/dir"
 )
 
+// Defines a category of notes.
 type Category struct {
 	Title       string
 	Name        string
@@ -19,6 +20,7 @@ type Category struct {
 	Starter     bool
 }
 
+// Creates the category directory if it doesn't exist.
 func (c *Category) Init() error {
 	exist := dir.Exists(c.Path)
 	if !exist {
@@ -27,6 +29,7 @@ func (c *Category) Init() error {
 	return nil
 }
 
+// Generates a formatted string representation of the category and its notes.
 func (c *Category) Print() string {
 	if len(*c.Notes) == 0 {
 		return ""
@@ -38,8 +41,10 @@ func (c *Category) Print() string {
 	return out
 }
 
+// A collection of categories, implemented as a map.
 type Categories map[string]*Category
 
+// Retrieves a category by its name.
 func (cs Categories) Find(name string) (*Category, error) {
 	c, ok := cs[name]
 	if !ok {
@@ -48,10 +53,12 @@ func (cs Categories) Find(name string) (*Category, error) {
 	return c, nil
 }
 
+// Adds a category to the collection.
 func (cs Categories) Set(name string, c *Category) {
 	cs[name] = c
 }
 
+// Returns a new Categories collection containing only visible categories with notes.
 func (cs Categories) GetVisible() *Categories {
 	list := &Categories{}
 	for _, c := range cs {
@@ -62,6 +69,7 @@ func (cs Categories) GetVisible() *Categories {
 	return list
 }
 
+// Retrieves the starter category from the collection.
 func (cs Categories) GetStarter() (*Category, error) {
 	for _, c := range cs {
 		if c.Starter {
@@ -71,6 +79,7 @@ func (cs Categories) GetStarter() (*Category, error) {
 	return &Category{}, fmt.Errorf("no starter category found")
 }
 
+// Generates a formatted string representation of all visible categories and their notes, sorted by weight.
 func (cs Categories) Print() string {
 	list := cs.GetVisible()
 

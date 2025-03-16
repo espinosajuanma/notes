@@ -8,10 +8,16 @@ import (
 	"github.com/rwxrob/uniq"
 )
 
+// The name of the directory where notes are stored.
 const CONTENT_DIR = "content"
+
+// The default color for output, using ANSI escape codes for bright green.
 const DEFAULT_COLOR = "\033[1;32m"
+
+// The default prefix for output, which is an empty string.
 const DEFAULT_PREFIX = ""
 
+// Represents the main application structure, holding all core components and data.
 type App struct {
 	Name       string
 	Config     *Config
@@ -23,6 +29,8 @@ type App struct {
 	Color      string
 }
 
+// Creates a new App instance.
+// It initializes the App struct with the provided config
 func NewApp(name, path string, config *Config) *App {
 	app := &App{
 		Name:       name,
@@ -38,8 +46,8 @@ func NewApp(name, path string, config *Config) *App {
 	return app
 }
 
-// INITIALIZATION
-
+// Initializes the application, including configuration, repository, categories, and notes.
+// It returns an error if any initialization step fails.
 func (app *App) Init() error {
 	if app.Path == "" {
 		return fmt.Errorf("path can't be empty")
@@ -71,6 +79,8 @@ func (app *App) Init() error {
 	return nil
 }
 
+// Initializes the application's configuration, including setting up categories and transitions.
+// It returns an error if any configuration step fails.
 func (app *App) InitConfig() error {
 	err := app.Config.Init()
 	if err != nil {
@@ -103,6 +113,8 @@ func (app *App) InitConfig() error {
 	return nil
 }
 
+// Initializes the notes by reading the content directory and creating Note instances.
+// It returns an error if any note initialization step fails.
 func (app *App) InitNotes() error {
 	for _, c := range *app.Categories {
 		dir, err := os.ReadDir(c.Path)
@@ -129,8 +141,8 @@ func (app *App) InitNotes() error {
 	return nil
 }
 
-// CRUD
-
+// Creates a new note with the given title.
+// It returns a pointer to the created Note and an error if any.
 func (app *App) Create(title string) (*Note, error) {
 	c, err := app.Categories.GetStarter()
 	if err != nil {
@@ -148,6 +160,9 @@ func (app *App) Create(title string) (*Note, error) {
 	return note, nil
 }
 
+// Retrieves a note by its ID or the latest note.
+// If id is empty or "latest", it returns the latest note.
+// Otherwise, it returns the note with the specified ID.
 func (app *App) Get(id string) (*Note, error) {
 	if id == "" || id == "latest" {
 		return app.Notes.GetLatest()
@@ -155,6 +170,8 @@ func (app *App) Get(id string) (*Note, error) {
 	return app.Notes.Get(id)
 }
 
+// Moves a note to a different category based on a transition.
+// It returns a pointer to the new Category and an error if any.
 func (app *App) Move(id, transition string) (*Category, error) {
 	note, err := app.Get(id)
 	if err != nil {
@@ -188,6 +205,8 @@ func (app *App) Move(id, transition string) (*Category, error) {
 	return newCategory, nil
 }
 
+// Open the $EDITOR for the user edit a note.
+// It returns an error if any.
 func (app *App) Update(id string) error {
 	note, err := app.Get(id)
 	if err != nil {
@@ -205,6 +224,8 @@ func (app *App) Update(id string) error {
 	return nil
 }
 
+// Removes a note.
+// It returns an error if any.
 func (app *App) Remove(id string) error {
 	note, err := app.Get(id)
 	if err != nil {
@@ -221,51 +242,47 @@ func (app *App) Remove(id string) error {
 	return nil
 }
 
-// TODO
+// Pins a note.
+// It returns an error if any.
+// TODO: Implement repository move and commit.
 func (app *App) Pin(note *Note) error {
-	if note.Pinned {
-		return fmt.Errorf("note [%s] is already pinned", note.ID)
-	}
-	// Repo move
-
-	// Commit
-
-	note.Pinned = true
-	return nil
+	return fmt.Errorf("Pin not implemented")
 }
 
-// TODO
+// Unpins a note.
+// It returns an error if any.
+// TODO: Implement repository move and commit.
 func (app *App) Unpin(note *Note) error {
-	if !note.Pinned {
-		return fmt.Errorf("note [%s] is not pinned", note.ID)
-	}
-	// Repo move
-
-	// Commit
-
-	note.Pinned = false
-	return nil
+	return fmt.Errorf("Unpin not implemented")
 }
 
-// TODO
+// Queries notes based on content.
+// It returns a pointer to the matching Notes and an error if any.
+// TODO: Implement content-based search.
 func (app *App) Query(q string) (*Notes, error) {
-	// Find on content
-	return &Notes{}, nil
+	return &Notes{}, fmt.Errorf("Query not implemented")
 }
 
-// TODO
+// Finds notes by tags.
+// It returns a pointer to the matching Notes and an error if any.
+// TODO: Implement tag-based search.
 func (app *App) FindByTag(tags []string) (*Notes, error) {
-	return &Notes{}, nil
+	return &Notes{}, fmt.Errorf("FindByTag not implemented")
 }
 
+// Gets the latest note.
+// It returns a pointer to the latest Note and an error if any.
 func (app *App) GetLatest() (*Note, error) {
 	return app.Notes.GetLatest()
 }
 
+// Sets the latest note.
 func (app *App) SetLatest(latest *Note) {
 	app.Notes.SetLatest(latest)
 }
 
+// Sets the output color.
+// It returns an error if the color is empty.
 func (app *App) SetColor(c string) error {
 	if c == "" {
 		return fmt.Errorf("color can't be empty")
@@ -274,6 +291,8 @@ func (app *App) SetColor(c string) error {
 	return nil
 }
 
+// Sets the output prefix.
+// It returns an error if the prefix is empty.
 func (app *App) SetPrefix(p string) error {
 	if p == "" {
 		return fmt.Errorf("prefix can't be empty")
@@ -282,6 +301,8 @@ func (app *App) SetPrefix(p string) error {
 	return nil
 }
 
+// Gets a list of all available transitions.
+// It returns a slice of transition names.
 func (app *App) GetTransitions() []string {
 	var transitions []string
 	for _, c := range *app.Categories {
